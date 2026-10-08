@@ -61,7 +61,7 @@ class order(Base):
     price = Column(Float, nullable=False)
     order_date = Column(DateTime, default=datetime.utcnow)   
 
-    def __init__(self, user_id: int, car_id: int, price: float, status='PENDING'):
+    def __init__(self, user_id: int, car_id: int, price: float=0.0, status='PENDING'):
         self.user_id = user_id
         self.car_id = car_id
         self.price = price

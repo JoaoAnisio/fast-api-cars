@@ -9,5 +9,13 @@ class UserSchema(BaseModel):
     active: Optional[bool] = True
     admin: Optional[bool] = False
 
-class Config:
-    from_attributes = True    
+    class Config:
+        from_attributes = True    
+
+class OrderSchema(BaseModel): 
+    user_id: int
+    car_id: int
+    
+
+    class Config:
+        from_attributes = True       
