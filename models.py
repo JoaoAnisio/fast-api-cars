@@ -16,12 +16,14 @@ class user(Base):
     name = Column(String, nullable=False)
     email = Column(String, unique=True, index=True, nullable=False)
     password = Column(String, nullable=False)
+    active = Column(Boolean, default=True)
     admin = Column(Boolean, default=False) 
 
-    def __init__(self, name: str, email: str, password: str, admin: bool = False):
+    def __init__(self, name: str, email: str, password: str, active: bool = True, admin: bool = False):
         self.name = name
         self.email = email
         self.password = password
+        self.active = active
         self.admin = admin
 
 
