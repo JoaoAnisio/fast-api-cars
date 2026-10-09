@@ -10,7 +10,7 @@ db = create_engine("sqlite:///database.db")
 Base = declarative_base()
 
 #criação das tabelas/classes do banco de dados
-class user(Base):
+class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     name = Column(String, nullable=False)
@@ -27,7 +27,7 @@ class user(Base):
         self.admin = admin
 
 
-class car(Base):
+class Car(Base):
     __tablename__ = "cars"
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     make = Column(String, nullable=False)
@@ -45,7 +45,7 @@ class car(Base):
         self.color = color
         self.mileage = mileage
 
-class order(Base):
+class Order(Base):
     __tablename__ = "orders"
 
     """ status_order = [
