@@ -8,6 +8,7 @@ import os
 load_dotenv()  # Carrega as variáveis de ambiente do arquivo .env
 
 SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
 
 app = FastAPI()
 
