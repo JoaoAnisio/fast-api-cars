@@ -1,15 +1,23 @@
 from fastapi import APIRouter, Depends, HTTPException
 from models import User
-from dependencies import take_session
-from main import bcrypt_context
+from dependencies import take_session, verify_token
+from main import bcrypt_context, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
 from schemas import UserSchema, LoginSchema
 from sqlalchemy.orm import Session
+from jose import jwt, JWTError
+from datetime import datetime, timedelta, timezone
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
-def create_token(user_id: int):
-    token = f"your_token_here_{user_id}" 
-    return token
+def create_token(user_id: int,token_duration=timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))):
+    expire = datetime.now(timezone.utc) + token_duration
+    dict_to_encode = {"sub": str(user_id), "exp": expire}
+    enconded_jwt = jwt.encode(dict_to_encode, SECRET_KEY, algorithm=ALGORITHM)
+    return enconded_jwt
+
+def verify_token(token: str, session: Session = Depends(take_session)):
+    user = session.query(User).filter(User.id == 1).first()
+    return user
 
 def authenticate_user(email: str, password: str, session: Session):
     user = session.query(User).filter(User.email == email).first()
@@ -45,4 +53,17 @@ async def login(login_schema: LoginSchema, session: Session = Depends(take_sessi
         raise HTTPException(status_code=400, detail="User not found or incorrect password")
     else:
         access_token = create_token(user.id)
-        return {"access_token": access_token, "token_type": "bearer"}
+        refresh_token = create_token(user.id, token_duration=timedelta(days=7))  # Token de refresh válido por 7 dias
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "token_type": "bearer"
+            }
+
+@auth_router.get("/refresh_token")
+async def use_refresh_token(user: User = Depends(verify_token)):
+    access_token = create_token(user.id)
+    return {
+        "access_token": access_token,        
+        "token_type": "bearer"
+        }
