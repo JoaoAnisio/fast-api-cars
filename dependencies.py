@@ -16,7 +16,7 @@ def take_session():
 def verify_token(token: str = Depends(oauth2_scheme), session: Session = Depends(take_session)):
     try:
         dic_info = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        user_id = dic_info.get("sub")
+        user_id = int(dic_info.get("sub"))
     except JWTError:
         raise Exception(status_code=401, detail="Invalid token")
     user = session.query(User).filter(User.id == int(user_id)).first()

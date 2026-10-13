@@ -6,6 +6,7 @@ from schemas import UserSchema, LoginSchema
 from sqlalchemy.orm import Session
 from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
+from fastapi.security import OAuth2PasswordRequestForm
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -14,10 +15,6 @@ def create_token(user_id: int,token_duration=timedelta(minutes=int(ACCESS_TOKEN_
     dict_to_encode = {"sub": str(user_id), "exp": expire}
     enconded_jwt = jwt.encode(dict_to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return enconded_jwt
-
-def verify_token(token: str, session: Session = Depends(take_session)):
-    user = session.query(User).filter(User.id == 1).first()
-    return user
 
 def authenticate_user(email: str, password: str, session: Session):
     user = session.query(User).filter(User.email == email).first()
@@ -59,6 +56,18 @@ async def login(login_schema: LoginSchema, session: Session = Depends(take_sessi
             "refresh_token": refresh_token,
             "token_type": "bearer"
             }
+
+@auth_router.post("/login-form")
+async def login_form(data_form: OAuth2PasswordRequestForm = Depends(), session: Session = Depends(take_session)):
+    user = authenticate_user(data_form.username, data_form.password, session)
+    if not user:
+        raise HTTPException(status_code=400, detail="User not found or incorrect password")
+    else:
+        access_token = create_token(user.id)
+        return {
+            "access_token": access_token,
+            "token_type": "bearer"
+            }    
 
 @auth_router.get("/refresh_token")
 async def use_refresh_token(user: User = Depends(verify_token)):
