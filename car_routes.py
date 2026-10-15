@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from dependencies import take_session, verify_token
-from schemas import OrderSchema, CarSchema
-from models import Car, Order, User
+from schemas import CarSchema
+from models import Car, User
 
 car_router = APIRouter(prefix="/cars", tags=["cars"], dependencies=[Depends(verify_token)])
 
