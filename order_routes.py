@@ -14,13 +14,10 @@ async def function_orders():
 
 @order_router.post("/create_order")
 async def create_order(order_schema: OrderSchema, session: Session = Depends(take_session), user: User = Depends(verify_token)):
-    user = session.query(User).filter(User.id == order_schema.user_id).first()
     car = session.query(Car).filter(Car.id == order_schema.car_id).first()
     client = session.query(Client).filter(Client.id == order_schema.client_id).first()
     if not car:
         raise HTTPException(status_code=400, detail="Car not found")
-    elif not user:
-        raise HTTPException(status_code=400, detail="User not found")
     elif not client:
         raise HTTPException(status_code=400, detail="Client not found")
     

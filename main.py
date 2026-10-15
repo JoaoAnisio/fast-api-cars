@@ -8,9 +8,15 @@ import os
 
 load_dotenv()  # Carrega as variáveis de ambiente do arquivo .env
 
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = os.getenv("ALGORITHM")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+def get_required_env(name: str) -> str:
+    value = os.getenv(name)
+    if not value:
+        raise RuntimeError(f"Variável de ambiente '{name}' não definida. Crie o arquivo .env com SECRET_KEY, ALGORITHM e ACCESS_TOKEN_EXPIRE_MINUTES.")
+    return value
+
+SECRET_KEY = get_required_env("SECRET_KEY")
+ALGORITHM = get_required_env("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(get_required_env("ACCESS_TOKEN_EXPIRE_MINUTES"))
 
 app = FastAPI()
 

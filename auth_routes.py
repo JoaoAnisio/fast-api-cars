@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from models import User
-from dependencies import take_session, verify_token
+from dependencies import take_session, verify_refresh_token
 from main import bcrypt_context, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY
 from schemas import UserSchema, LoginSchema
 from sqlalchemy.orm import Session
@@ -10,9 +10,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
-def create_token(user_id: int,token_duration=timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))):
+def create_token(user_id: int, token_type: str = "access", token_duration=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)):
     expire = datetime.now(timezone.utc) + token_duration
-    dict_to_encode = {"sub": str(user_id), "exp": expire}
+    dict_to_encode = {"sub": str(user_id), "type": token_type, "exp": expire}
     enconded_jwt = jwt.encode(dict_to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return enconded_jwt
 
@@ -21,6 +21,8 @@ def authenticate_user(email: str, password: str, session: Session):
     if not user:
         return False
     elif not bcrypt_context.verify(password, user.password):
+        return False
+    elif not user.active:
         return False
     return user
 
@@ -38,7 +40,8 @@ async def create_user(user_schema: UserSchema, session: Session = Depends(take_s
         raise HTTPException(status_code=400, detail="User already exists")
     else:
         crypted_password = bcrypt_context.hash(user_schema  .password)
-        new_user = User(name=user_schema.name, email=user_schema.email, password=crypted_password, active=user_schema.active, admin=user_schema.admin)
+        # Cadastro público cria sempre um usuário comum e ativo
+        new_user = User(name=user_schema.name, email=user_schema.email, password=crypted_password, active=True, admin=False)
         session.add(new_user)
         session.commit()
         raise HTTPException(status_code=201, detail=f"User({user_schema.name}) created successfully")
@@ -50,7 +53,7 @@ async def login(login_schema: LoginSchema, session: Session = Depends(take_sessi
         raise HTTPException(status_code=400, detail="User not found or incorrect password")
     else:
         access_token = create_token(user.id)
-        refresh_token = create_token(user.id, token_duration=timedelta(days=7))  # Token de refresh válido por 7 dias
+        refresh_token = create_token(user.id, token_type="refresh", token_duration=timedelta(days=7))  # Token de refresh válido por 7 dias
         return {
             "access_token": access_token,
             "refresh_token": refresh_token,
@@ -70,7 +73,7 @@ async def login_form(data_form: OAuth2PasswordRequestForm = Depends(), session: 
             }    
 
 @auth_router.get("/refresh_token")
-async def use_refresh_token(user: User = Depends(verify_token)):
+async def use_refresh_token(user: User = Depends(verify_refresh_token)):
     access_token = create_token(user.id)
     return {
         "access_token": access_token,        
