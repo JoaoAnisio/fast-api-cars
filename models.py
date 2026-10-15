@@ -59,23 +59,27 @@ class Order(Base):
     car_id = Column(Integer, ForeignKey("cars.id"), nullable=False)
     client_id = Column(Integer, ForeignKey("clients.id"), nullable=False)
     status = Column(String, nullable=False)
-    price = Column(Float, nullable=False)
+    total_price = Column(Float, nullable=False)
     discount = Column(Float, default=0.0)
     order_date = Column(DateTime, default=datetime.utcnow)
     car = relationship("Car", backref="orders")   
     client = relationship("Client", backref="orders")
 
-    def __init__(self, user_id: int, car_id: int, client_id: int, price: float=0.0, status='PENDING'):
+    def __init__(self, user_id: int, car_id: int, client_id: int, total_price: float=0.0, status='PENDING'):
         self.user_id = user_id
         self.car_id = car_id
         self.client_id = client_id
-        self.price = price
+        self.total_price = total_price
         self.status = status
         self.order_date = datetime.utcnow()
 
     def calculate_price(self, discount: float, car: Car):
         calculated_price = (car.price * (1 - discount / 100))
-        self.price = calculated_price
+        self.total_price = calculated_price
+
+    @property    
+    def car_price(self):
+        return self.car.price
 
 class Client(Base):
     __tablename__ = "clients"
