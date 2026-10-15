@@ -3,6 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 
+from config import MAX_DISCOUNT_SELLER
 from dependencies import take_session, verify_token
 from models import Car, Client, Order, OrderStatus, User
 from schemas import MessageResponse, OrderSchema, ResponseOrderSchema
@@ -26,7 +27,10 @@ async def function_orders():
 
 @order_router.post("/create_order", status_code=201)
 async def create_order(order_schema: OrderSchema, session: Session = Depends(take_session), user: User = Depends(verify_token)):
-    car = session.query(Car).filter(Car.id == order_schema.car_id).first()
+    if order_schema.discount > MAX_DISCOUNT_SELLER and not user.admin:
+        raise HTTPException(status_code=403, detail=f"Discount above {MAX_DISCOUNT_SELLER:g}% requires admin approval.")
+
+    car =session.query(Car).filter(Car.id == order_schema.car_id).first()
     if not car:
         raise HTTPException(status_code=404, detail="Car not found")
     client = session.query(Client).filter(Client.id == order_schema.client_id).first()
