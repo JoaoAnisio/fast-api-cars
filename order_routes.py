@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from dependencies import take_session, verify_token
-from schemas import OrderSchema
+from schemas import OrderSchema, ResponseOrderSchema
 from models import Car, Client, Order, User
+from typing import List
 
 order_router = APIRouter(prefix="/orders", tags=["orders"], dependencies=[Depends(verify_token)])
 
@@ -60,10 +61,10 @@ async def list_orders(session: Session = Depends(take_session), user: User = Dep
         orders = session.query(Order).all()
         return {"orders": orders}
 
-@order_router.get("/my_orders")
+@order_router.get("/my_orders", response_model=List[ResponseOrderSchema])
 async def list_my_orders(session: Session = Depends(take_session), user: User = Depends(verify_token)):
     orders = session.query(Order).filter(Order.user_id == user.id).all()
-    return {"orders": orders}
+    return orders
 
 @order_router.delete("/delete_order/{order_id}")
 async def delete_order(order_id: int, session: Session = Depends(take_session), user: User = Depends(verify_token)):
@@ -79,4 +80,28 @@ async def delete_order(order_id: int, session: Session = Depends(take_session), 
         "order": order
     }
 
+@order_router.post("/order/complete/{order_id}")
+async def complete_order(order_id: int, session: Session = Depends(take_session), user: User = Depends(verify_token)):
+    order = session.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=400, detail="Order not found")
+    if not user.admin and user.id != order.user_id:
+        raise HTTPException(status_code=401, detail="You do not have permission to complete orders.")
+    order.status = "COMPLETED"
+    session.commit()
+    return {
+        "message": f"Order: {order.id} completed successfully.",
+        "order": order
+    }
+
+@order_router.get("/get_order/{order_id}")
+async def get_order(order_id: int, session: Session = Depends(take_session), user: User = Depends(verify_token)):
+    order = session.query(Order).filter(Order.id == order_id).first()
+    if not order:
+        raise HTTPException(status_code=400, detail="Order not found")
+    if not user.admin and user.id != order.user_id:
+        raise HTTPException(status_code=401, detail="You do not have permission to view this order.")
+    return {
+        "order": order
+         }
 

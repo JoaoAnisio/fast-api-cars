@@ -1,4 +1,6 @@
 
+from datetime import datetime
+
 from pydantic import BaseModel, Field
 from typing import Optional
 
@@ -16,7 +18,7 @@ class OrderSchema(BaseModel):
     user_id: int
     car_id: int
     client_id: int
-    discount: float = Field(default=0, ge=0, le=100)
+    discount: Optional[float] = Field(default=0, ge=0, le=100)
     
 
     class Config:
@@ -48,3 +50,16 @@ class ClientSchema(BaseModel):
 
     class Config:
         from_attributes = True        
+
+class ResponseOrderSchema(BaseModel):
+    id: int
+    car_id: int
+    client_id: int
+    status: str
+    car_price: float
+    total_price: float
+    discount: Optional[float] = Field(default=0, ge=0, le=100)
+    order_date: datetime
+
+    class Config:
+        from_attributes = True
