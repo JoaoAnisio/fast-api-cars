@@ -1,26 +1,31 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+
 from dependencies import take_session, verify_token
-from schemas import ClientSchema
-from models import  Client, User
+from models import Client
+from schemas import ClientSchema, ResponseClientSchema
 
 client_router = APIRouter(prefix="/clients", tags=["clients"], dependencies=[Depends(verify_token)])
 
-@client_router.post("/add_client")
-async def add_client(client_schema: ClientSchema, session: Session = Depends(take_session), user: User = Depends(verify_token)):
-    new_client = Client(**client_schema.dict())
+
+@client_router.post("/add_client", status_code=201, response_model=ResponseClientSchema)
+async def add_client(client_schema: ClientSchema, session: Session = Depends(take_session)):
+    new_client = Client(**client_schema.model_dump())
     session.add(new_client)
     session.commit()
-    return {"message": f"Client added successfully. Client ID: {new_client.id}", "client": new_client}
+    return new_client
 
-@client_router.get("/list_clients")
-async def list_clients(session: Session = Depends(take_session), user: User = Depends(verify_token)):
-        clients = session.query(Client).all()
-        return {"clients": clients}
 
-@client_router.get("/get_client/{client_id}")
-async def get_client(client_id: int, session: Session = Depends(take_session), user: User = Depends(verify_token)):
+@client_router.get("/list_clients", response_model=List[ResponseClientSchema])
+async def list_clients(session: Session = Depends(take_session)):
+    return session.query(Client).all()
+
+
+@client_router.get("/get_client/{client_id}", response_model=ResponseClientSchema)
+async def get_client(client_id: int, session: Session = Depends(take_session)):
     client = session.query(Client).filter(Client.id == client_id).first()
     if not client:
         raise HTTPException(status_code=404, detail="Client not found")
-    return {"client": client}
+    return client

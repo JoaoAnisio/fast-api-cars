@@ -1,32 +1,18 @@
-
 from datetime import datetime
 
-from pydantic import BaseModel, Field
-from typing import Optional
+from pydantic import BaseModel, ConfigDict, Field
+
 
 class UserSchema(BaseModel):
     name: str
     email: str
     password: str
 
-    class Config:
-        from_attributes = True    
-
-class OrderSchema(BaseModel):
-    car_id: int
-    client_id: int
-    discount: Optional[float] = Field(default=0, ge=0, le=100)
-    
-
-    class Config:
-        from_attributes = True       
 
 class LoginSchema(BaseModel):
     email: str
     password: str
 
-    class Config:
-        from_attributes = True
 
 class CarSchema(BaseModel):
     make: str
@@ -36,8 +22,6 @@ class CarSchema(BaseModel):
     color: str
     mileage: int
 
-    class Config:
-        from_attributes = True
 
 class ClientSchema(BaseModel):
     name: str
@@ -45,8 +29,28 @@ class ClientSchema(BaseModel):
     email: str
     phone: str
 
-    class Config:
-        from_attributes = True        
+
+class OrderSchema(BaseModel):
+    car_id: int
+    client_id: int
+    discount: float = Field(default=0, ge=0, le=100)
+
+
+class MessageResponse(BaseModel):
+    message: str
+
+
+class ResponseCarSchema(CarSchema):
+    id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class ResponseClientSchema(ClientSchema):
+    id: int
+
+    model_config = ConfigDict(from_attributes=True)
+
 
 class ResponseOrderSchema(BaseModel):
     id: int
@@ -55,8 +59,7 @@ class ResponseOrderSchema(BaseModel):
     status: str
     car_price: float
     total_price: float
-    discount: Optional[float] = Field(default=0, ge=0, le=100)
+    discount: float | None = Field(default=0, ge=0, le=100)
     order_date: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

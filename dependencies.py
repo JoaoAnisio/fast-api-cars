@@ -1,17 +1,20 @@
-from models import db
-from sqlalchemy.orm import sessionmaker, Session
-from models import User
 from fastapi import Depends, HTTPException
-from jose import jwt, JWTError
-from main import SECRET_KEY, ALGORITHM, oauth2_scheme
+from jose import JWTError, jwt
+from sqlalchemy.orm import Session, sessionmaker
+
+from config import ALGORITHM, SECRET_KEY, oauth2_scheme
+from models import User, db
+
+SessionLocal = sessionmaker(bind=db)
+
 
 def take_session():
+    session = SessionLocal()
     try:
-        Session = sessionmaker(bind=db)
-        session = Session()
         yield session
     finally:
         session.close()
+
 
 def get_user_from_token(token: str, expected_type: str, session: Session):
     invalid_token = HTTPException(status_code=401, detail="Invalid token", headers={"WWW-Authenticate": "Bearer"})
@@ -30,8 +33,10 @@ def get_user_from_token(token: str, expected_type: str, session: Session):
         raise HTTPException(status_code=403, detail="Inactive user")
     return user
 
+
 def verify_token(token: str = Depends(oauth2_scheme), session: Session = Depends(take_session)):
     return get_user_from_token(token, "access", session)
+
 
 def verify_refresh_token(token: str = Depends(oauth2_scheme), session: Session = Depends(take_session)):
     return get_user_from_token(token, "refresh", session)

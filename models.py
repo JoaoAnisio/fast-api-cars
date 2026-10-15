@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, Column, Integer, String, Float, DateTime, ForeignKey, Boolean
 from sqlalchemy.orm import declarative_base, relationship
-from datetime import datetime
-from sqlalchemy_utils.types import ChoiceType
+from datetime import datetime, timezone
+from enum import Enum
 
 #criação da conexão com o banco de dados SQLite
 db = create_engine("sqlite:///database.db")
@@ -45,14 +45,16 @@ class Car(Base):
         self.color = color
         self.mileage = mileage
 
+def utc_now():
+    return datetime.now(timezone.utc)
+
+class OrderStatus(str, Enum):
+    PENDING = "PENDING"
+    COMPLETED = "COMPLETED"
+    CANCELED = "CANCELED"
+
 class Order(Base):
     __tablename__ = "orders"
-
-    """ status_order = [
-        ('PENDING', 'PENDING'),
-        ('COMPLETED', 'COMPLETED'),
-        ('CANCELED', 'CANCELED')
-    ] """
 
     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -61,23 +63,23 @@ class Order(Base):
     status = Column(String, nullable=False)
     total_price = Column(Float, nullable=False)
     discount = Column(Float, default=0.0)
-    order_date = Column(DateTime, default=datetime.utcnow)
+    order_date = Column(DateTime, default=utc_now)
     car = relationship("Car", backref="orders")   
     client = relationship("Client", backref="orders")
 
-    def __init__(self, user_id: int, car_id: int, client_id: int, total_price: float=0.0, status='PENDING'):
+    def __init__(self, user_id: int, car_id: int, client_id: int, total_price: float=0.0, status: str = OrderStatus.PENDING.value):
         self.user_id = user_id
         self.car_id = car_id
         self.client_id = client_id
         self.total_price = total_price
         self.status = status
-        self.order_date = datetime.utcnow()
+        self.order_date = utc_now()
 
     def calculate_price(self, discount: float, car: Car):
         calculated_price = (car.price * (1 - discount / 100))
         self.total_price = calculated_price
 
-    @property    
+    @property
     def car_price(self):
         return self.car.price
 
