@@ -1,5 +1,7 @@
 # Fast API Cars
 
+![Tests](https://github.com/JoaoAnisio/fast-api-cars/actions/workflows/tests.yml/badge.svg)
+
 API REST para gestão de vendas de carros, construída com **FastAPI**, **SQLAlchemy** e **Alembic**. Vendedores autenticados cadastram clientes e registram pedidos de venda; administradores gerenciam o catálogo de carros e acompanham todas as vendas.
 
 > Projeto de estudo. Usa SQLite e não foi preparado para produção sem ajustes (veja [Limitações](#limitações)).
