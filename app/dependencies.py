@@ -2,8 +2,8 @@ from fastapi import Depends, HTTPException
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session, sessionmaker
 
-from config import ALGORITHM, SECRET_KEY, oauth2_scheme
-from models import User, db
+from app.config import ALGORITHM, SECRET_KEY, oauth2_scheme
+from app.models import User, db
 
 SessionLocal = sessionmaker(bind=db)
 

@@ -1,7 +1,7 @@
 from jose import jwt
 
-from config import ALGORITHM, SECRET_KEY, bcrypt_context
-from models import User
+from app.config import ALGORITHM, SECRET_KEY, bcrypt_context
+from app.models import User
 from tests.data import PASSWORD
 
 NEW_USER = {"name": "Joana", "email": "joana@test.com", "password": PASSWORD}

@@ -45,7 +45,7 @@ copy .env.example .env          # Linux / macOS: cp .env.example .env
 alembic upgrade head
 
 # 6. subir o servidor
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 A documentação interativa (Swagger) fica em **http://127.0.0.1:8000/docs**. O botão **Authorize** aceita e-mail e senha de um usuário cadastrado.
@@ -64,7 +64,7 @@ A documentação interativa (Swagger) fica em **http://127.0.0.1:8000/docs**. O 
 O cadastro público (`POST /auth/create_user`) sempre cria um usuário comum. Para promover alguém a administrador, cadastre o usuário e rode:
 
 ```bash
-python make_admin.py email@exemplo.com
+python -m scripts.make_admin email@exemplo.com
 ```
 
 ## Endpoints
@@ -132,18 +132,22 @@ Os testes usam um banco SQLite em memória e não precisam do arquivo `.env`.
 ## Estrutura do projeto
 
 ```
-├── main.py              # cria o app e registra as rotas
-├── config.py            # variáveis de ambiente, bcrypt e esquema OAuth2
-├── dependencies.py      # sessão do banco e verificação de token
-├── models.py            # modelos SQLAlchemy (User, Car, Client, Order)
-├── schemas.py           # schemas Pydantic de entrada e saída
-├── auth_routes.py       # cadastro, login e refresh
-├── car_routes.py        # carros
-├── client_routes.py     # clientes
-├── order_routes.py      # pedidos
-├── make_admin.py        # promove um usuário a admin
-├── alembic/             # migrations do banco
-└── tests/               # testes automatizados
+├── app/
+│   ├── main.py            # cria o app e registra as rotas
+│   ├── config.py          # variáveis de ambiente, bcrypt e esquema OAuth2
+│   ├── dependencies.py    # sessão do banco e verificação de token
+│   ├── models.py          # modelos SQLAlchemy (User, Car, Client, Order)
+│   ├── schemas.py         # schemas Pydantic de entrada e saída
+│   └── routers/
+│       ├── auth.py        # cadastro, login e refresh
+│       ├── cars.py        # carros
+│       ├── clients.py     # clientes
+│       └── orders.py      # pedidos
+├── scripts/
+│   └── make_admin.py      # promove um usuário a admin
+├── alembic/               # migrations do banco
+├── tests/                 # testes automatizados
+└── .github/workflows/     # integração contínua (GitHub Actions)
 ```
 
 ## Limitações

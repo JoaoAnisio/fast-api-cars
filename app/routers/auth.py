@@ -5,10 +5,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt
 from sqlalchemy.orm import Session
 
-from config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY, bcrypt_context
-from dependencies import take_session, verify_refresh_token
-from models import User
-from schemas import LoginSchema, MessageResponse, UserSchema
+from app.config import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY, bcrypt_context
+from app.dependencies import take_session, verify_refresh_token
+from app.models import User
+from app.schemas import LoginSchema, MessageResponse, UserSchema
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 

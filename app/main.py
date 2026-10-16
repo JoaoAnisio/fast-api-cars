@@ -1,11 +1,11 @@
-# para rodar o código, executar no terminal: uvicorn main:app --reload
+# para rodar o código, executar no terminal: uvicorn app.main:app --reload
 
 from fastapi import FastAPI
 
-from auth_routes import auth_router
-from car_routes import car_router
-from client_routes import client_router
-from order_routes import order_router
+from app.routers.auth import auth_router
+from app.routers.cars import car_router
+from app.routers.clients import client_router
+from app.routers.orders import order_router
 
 app = FastAPI(title="Fast API Cars", description="API de gestão de vendas de carros", version="1.0.0")
 

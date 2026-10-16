@@ -4,9 +4,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
-from dependencies import take_session, verify_token
-from models import Client
-from schemas import ClientSchema, ResponseClientSchema
+from app.dependencies import take_session, verify_token
+from app.models import Client
+from app.schemas import ClientSchema, ResponseClientSchema
 
 client_router = APIRouter(prefix="/clients", tags=["clients"], dependencies=[Depends(verify_token)])
 

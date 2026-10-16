@@ -13,10 +13,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
 
-from config import bcrypt_context
-from dependencies import take_session
-from main import app
-from models import Base, User
+from app.config import bcrypt_context
+from app.dependencies import take_session
+from app.main import app
+from app.models import Base, User
 from tests.data import CAR, CLIENT, PASSWORD
 
 # Custo mínimo do bcrypt nos testes, para a suíte rodar rápido (em produção segue o padrão)

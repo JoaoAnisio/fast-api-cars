@@ -1,12 +1,12 @@
 """Promove um usuário já cadastrado a administrador.
 
-Uso: python make_admin.py email@exemplo.com
+Uso (a partir da raiz do projeto): python -m scripts.make_admin email@exemplo.com
 """
 import sys
 
 from sqlalchemy.orm import sessionmaker
 
-from models import User, db
+from app.models import User, db
 
 
 def main(email: str) -> int:
@@ -23,6 +23,6 @@ def main(email: str) -> int:
 
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Uso: python make_admin.py email@exemplo.com")
+        print("Uso (a partir da raiz do projeto): python -m scripts.make_admin email@exemplo.com")
         sys.exit(2)
     sys.exit(main(sys.argv[1]))

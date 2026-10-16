@@ -3,10 +3,10 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, joinedload
 
-from config import MAX_DISCOUNT_SELLER
-from dependencies import take_session, verify_token
-from models import Car, Client, Order, OrderStatus, User
-from schemas import MessageResponse, OrderSchema, ResponseOrderSchema
+from app.config import MAX_DISCOUNT_SELLER
+from app.dependencies import take_session, verify_token
+from app.models import Car, Client, Order, OrderStatus, User
+from app.schemas import MessageResponse, OrderSchema, ResponseOrderSchema
 
 order_router = APIRouter(prefix="/orders", tags=["orders"], dependencies=[Depends(verify_token)])
 
