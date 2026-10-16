@@ -1,0 +1,31 @@
+name: Tests
+
+# Quando o workflow roda: a cada push na main e em todo pull request
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    # Máquina virtual nova e limpa, criada a cada execução
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Baixa o código do repositório para a máquina
+      - uses: actions/checkout@v4
+
+      # 2. Instala o Python 3.12 (e guarda o cache do pip para acelerar as próximas execuções)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+
+      # 3. Instala as dependências do projeto e as de teste
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      # 4. Roda os testes. Se algum falhar, o job fica vermelho
+      - name: Run tests
+        run: pytest
