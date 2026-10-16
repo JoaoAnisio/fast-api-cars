@@ -7,7 +7,7 @@ from car_routes import car_router
 from client_routes import client_router
 from order_routes import order_router
 
-app = FastAPI()
+app = FastAPI(title="Fast API Cars", description="API de gestão de vendas de carros", version="1.0.0")
 
 app.include_router(auth_router)
 app.include_router(order_router)

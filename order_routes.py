@@ -20,11 +20,6 @@ def get_order_for_user(order_id: int, action: str, session: Session, user: User)
     return order
 
 
-@order_router.get("/")
-async def function_orders():
-    return {"message": "Orders route"}
-
-
 @order_router.post("/create_order", status_code=201)
 async def create_order(order_schema: OrderSchema, session: Session = Depends(take_session), user: User = Depends(verify_token)):
     if order_schema.discount > MAX_DISCOUNT_SELLER and not user.admin:

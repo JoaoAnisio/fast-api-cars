@@ -32,14 +32,6 @@ def invalid_credentials():
     return HTTPException(status_code=401, detail="Incorrect email or password", headers={"WWW-Authenticate": "Bearer"})
 
 
-@auth_router.get("/")
-async def function_auth():
-    '''
-    Essa é a rota padrão de autenticação do sistema
-    '''
-    return {"message": "Authentication route"}
-
-
 @auth_router.post("/create_user", status_code=201, response_model=MessageResponse)
 async def create_user(user_schema: UserSchema, session: Session = Depends(take_session)):
     if session.query(User).filter(User.email == user_schema.email).first():
